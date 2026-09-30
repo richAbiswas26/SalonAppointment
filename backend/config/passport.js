@@ -1,17 +1,61 @@
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const User = require('../models/User');
-if(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET){
- passport.use(new GoogleStrategy({clientID:process.env.GOOGLE_CLIENT_ID,clientSecret:process.env.GOOGLE_CLIENT_SECRET,callbackURL:process.env.GOOGLE_CALLBACK_URL},async(_a,_r,p,done)=>{
-   try{
-    let user=await User.findOne({googleId:p.id});
-    if(!user) user=await User.findOne({email:p.emails?.[0]?.value?.toLowerCase()});
-    if(!user) user=await User.create({name:p.displayName,email:p.emails?.[0]?.value?.toLowerCase(),googleId:p.id,authProvider:'google'});
-    else if(!user.googleId){user.googleId=p.id;user.authProvider='google';await user.save();}
-    done(null,user);
-   }catch(e){done(e);}
- }));
+
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+
+  passport.use(
+    new GoogleStrategy(
+      {
+        clientID: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        callbackURL: process.env.GOOGLE_CALLBACK_URL
+      },
+      async (_accessToken, _refreshToken, profile, done) => {
+        try {
+          const googleEmail =
+            profile.emails?.[0]?.value?.toLowerCase();
+
+          // Check whether the customer is already registered
+          let user = await User.findOne({
+            email: googleEmail
+          });
+
+          // Not registered → do not create account
+          if (!user) {
+            return done(null, false, {
+              message: 'Account not found. Please register first.'
+            });
+          }
+
+          // Registered account → connect Google account if needed
+          if (!user.googleId) {
+            user.googleId = profile.id;
+            user.authProvider = 'google';
+            await user.save();
+          }
+
+          return done(null, user);
+
+        } catch (error) {
+          return done(error);
+        }
+      }
+    )
+  );
 }
-passport.serializeUser((u,done)=>done(null,u.id));
-passport.deserializeUser(async(id,done)=>{try{done(null,await User.findById(id));}catch(e){done(e);}});
-module.exports=passport;
+
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+  try {
+    const user = await User.findById(id);
+    done(null, user);
+  } catch (error) {
+    done(error);
+  }
+});
+
+module.exports = passport;
