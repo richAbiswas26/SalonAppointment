@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title><%= title||'Admin Dashboard' %></title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="admin-body">
+<header class="admin-header">
+  <a class="admin-brand" href="/admin"><span class="brand-mark">GC</span><span>Glow & Care <small>ADMIN</small></span></a>
+  <button class="admin-nav-toggle" onclick="document.body.classList.toggle('admin-nav-open')" aria-label="Open admin menu">☰</button>
+  <nav class="admin-nav">
+    <a href="/admin" class="<%= title==='Admin Dashboard'?'active':'' %>">Dashboard</a>
+    <a href="/admin/bookings" class="<%= title==='Admin Bookings'?'active':'' %>">Bookings</a>
+    <a href="/admin/categories" class="<%= title==='Categories'?'active':'' %>">Categories</a>
+    <a href="/admin/services" class="<%= title==='Services Management'?'active':'' %>">Services</a>
+    <a href="/admin/hero" class="<%= title==='Homepage Slider'?'active':'' %>">Home Slider</a>
+    <a href="/admin/slots" class="<%= title==='Appointment Slots'?'active':'' %>">Slots</a>
+    <a href="/admin/revenue" class="<%= title==='Revenue'?'active':'' %>">Revenue</a>
+    <a href="/admin/customers" class="<%= title==='Customers'?'active':'' %>">Customers</a>
+    <a href="/admin/rewards" class="<%= title==='Reward History'?'active':'' %>">Rewards</a>
+    <a href="/admin/messages" class="<%= title==='Customer Queries'?'active':'' %>">Queries</a>
+    <a href="/admin/profile" class="<%= title==='Admin Profile'?'active':'' %>">Profile</a>
+    <a href="/logout">Logout</a>
+  </nav>
+</header>
+<main>

@@ -1,0 +1,16 @@
+<%- include('../partials/header',{title:'Rewards'}) %>
+<section class="section">
+  <span class="eyebrow">LOYALTY</span><h1>Subscription & Rewards</h1>
+  <div class="reward-card">
+    <h2>Your 6-Visit Reward</h2>
+    <p><strong><%= user.rewardCount %> / 6</strong> completed appointments in the current cycle</p>
+    <div class="progress"><span style="width:<%= Math.min(user.rewardCount/6*100,100) %>%"></span></div>
+    <% if(user.rewardCount===5){ %><p class="reward">🎉 Your next completed appointment will unlock 10% off.</p><% }else{ %><p>Complete <%= 6-user.rewardCount %> more appointment(s) to unlock 10%.</p><% } %>
+    <p>Reward cycles completed: <strong><%= user.rewardCycle %></strong></p>
+  </div>
+  <h2>Reward History</h2>
+  <div class="table-wrap"><table><tr><th>Cycle</th><th>Unlocking booking</th><th>Discount</th><th>Date</th></tr><% rewards.forEach(r=>{ %><tr><td>#<%= r.cycle %></td><td><%= r.booking?.bookingCode||'-' %></td><td><strong><%= r.discountPercent %>%</strong></td><td><%= r.unlockedAt.toLocaleDateString() %></td></tr><% }) %></table></div>
+  <h2>Completed Visits</h2>
+  <div class="table-wrap"><table><tr><th>Date</th><th>Booking</th><th>Total</th></tr><% history.forEach(b=>{ %><tr><td><%= b.completedAt?.toLocaleDateString() %></td><td><%= b.bookingCode %></td><td>₹<%= b.finalTotal %></td></tr><% }) %></table></div>
+</section>
+<%- include('../partials/footer') %>

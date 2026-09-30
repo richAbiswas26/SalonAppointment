@@ -1,0 +1,34 @@
+<%- include('../partials/admin-header',{title:'Admin Bookings'}) %>
+<section class="admin-section">
+  <div class="admin-page-title"><span class="eyebrow">APPOINTMENT MANAGEMENT</span><h1>Bookings & Final Bills</h1><p>See services, members, visit progress and rewards while finalizing each appointment.</p></div>
+  <div class="table-wrap admin-table">
+  <table><tr><th>Customer & Visit</th><th>Date / Time</th><th>Booked services</th><th>Status</th><th>Amount</th><th>Actions</th></tr>
+  <% bookings.forEach(b=>{ const u=b.customer?rewardMap[b.customer._id.toString()]:null; %>
+    <tr>
+      <td><strong><%= b.customer?.name||b.guestName||'Guest' %></strong><br><small><%= b.contactPhone||b.contactEmail||'' %></small>
+      <% if(u){ %><div class="visit-mini"><span>Visits: <b><%= u.rewardCount %>/6</b></span><span>Rewards: <b><%= u.rewardCycle %></b></span><% if(u.rewardCount===5){ %><em>10% unlocks on this visit</em><% } %></div><% } %></td>
+      <td><%= b.date.toLocaleDateString() %><br><strong><%= b.slot %></strong></td>
+      <td><% b.items.forEach(x=>{ %><div><%= x.name %> × <%= x.members %></div><% }) %></td>
+      <td><span class="status <%= b.status %>"><%= b.status %></span><% if(b.discountPercent){ %><br><small class="reward">10% discount</small><% } %></td>
+      <td><strong>₹<%= b.finalTotal %></strong><% if(b.discountAmount){ %><br><small>Discount: ₹<%= b.discountAmount %></small><% } %></td>
+      <td>
+        <% if(['booked','confirmed'].includes(b.status)){ %><form method="post" action="/admin/bookings/<%= b._id %>/cancel"><button class="danger-btn">Cancel</button></form><% } %>
+        <% if(b.status!=='completed'&&b.status!=='cancelled'){ %>
+        <details class="bill-details"><summary>Finalize bill</summary>
+          <form method="post" action="/admin/bookings/<%= b._id %>/complete" class="form compact" onsubmit="return prepareFinalItems(this)">
+            <p class="muted">Adjust the actual services and member counts completed at the salon.</p>
+            <div class="final-items"><% b.items.forEach(x=>{ %><div><input class="fi-name" value="<%= x.name %>" readonly><input class="fi-price" type="number" value="<%= x.price %>" readonly><input class="fi-members" type="number" min="0" value="<%= x.members %>"></div><% }) %></div>
+            <div class="add-on"><select class="add-service"><option value="">Add service actually provided…</option><% services.forEach(s=>{ %><option value="<%= s.name %>" data-price="<%= s.price %>"><%= s.name %> — ₹<%= s.price %></option><% }) %></select><input class="add-members" type="number" min="1" value="1"><button type="button" onclick="addFinalService(this)">Add</button></div>
+            <input type="hidden" name="items"><button class="btn">Complete & Generate Revenue</button>
+          </form>
+        </details>
+        <% } %>
+      </td>
+    </tr>
+  <% }) %></table></div>
+</section>
+<script>
+function addFinalService(btn){const box=btn.parentElement,sel=box.querySelector('.add-service'),opt=sel.options[sel.selectedIndex];if(!opt.value)return;const wrap=btn.closest('form').querySelector('.final-items');const members=Number(box.querySelector('.add-members').value||1);const row=document.createElement('div');row.innerHTML='<input class="fi-name" value="'+opt.value+'" readonly><input class="fi-price" type="number" value="'+opt.dataset.price+'" readonly><input class="fi-members" type="number" min="0" value="'+members+'">';wrap.appendChild(row);sel.value='';}
+function prepareFinalItems(f){const rows=[...f.querySelectorAll('.final-items>div')].map(r=>({name:r.querySelector('.fi-name').value,price:Number(r.querySelector('.fi-price').value),members:Number(r.querySelector('.fi-members').value)})).filter(x=>x.members>0);if(!rows.length){alert('At least one completed service is required.');return false;}f.querySelector('[name=items]').value=JSON.stringify(rows);return true;}
+</script>
+<%- include('../partials/admin-footer') %>

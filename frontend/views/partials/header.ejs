@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title><%= title||'Glow & Care Salon' %></title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<header class="header">
+  <a class="brand" href="/"><span class="brand-mark">GC</span><span>Glow & Care <small>BEAUTY SALON</small></span></a>
+  <button class="nav-toggle" onclick="document.body.classList.toggle('nav-open')" aria-label="Open navigation">☰</button>
+  <nav class="nav">
+    <a href="/">Home</a>
+    <a href="/services">Services</a>
+    <a href="/cart">Cart <span class="cart-badge"><%= (typeof sessionCartCount!=='undefined'?sessionCartCount:0) %></span></a>
+    <% if(user){ %>
+      <a href="/booking-history">Bookings</a>
+      <a href="/subscription">Rewards</a>
+      <a href="/profile">Profile</a>
+      <a class="btn small" href="/logout">Logout</a>
+    <% }else{ %>
+      <a href="/login">Login</a>
+      <a class="btn small" href="/register">Register</a>
+    <% } %>
+  </nav>
+</header>
+<main>

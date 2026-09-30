@@ -1,0 +1,29 @@
+<%- include('../partials/admin-header',{title:'Categories'}) %>
+<section class="admin-section">
+  <div class="admin-page-title"><span class="eyebrow">SERVICE CATALOG</span><h1>Categories</h1><p>Create, manage and remove your main service categories.</p></div>
+  <% if (typeof error !== 'undefined' && error) { %>
+    <div class="alert"><%= error %></div>
+<% } %>
+  <div class="admin-panel">
+    <form method="post" action="/admin/categories" enctype="multipart/form-data" class="admin-form-grid">
+      <input name="name" placeholder="Category name" required>
+      <input name="description" placeholder="Description">
+      <label class="file-field">Category image<input name="image" type="file" accept="image/jpeg,image/png,image/webp" required></label>
+      <button class="btn">Add category</button>
+    </form>
+  </div>
+  <div class="admin-card-grid">
+    <% categories.forEach(c=>{ %>
+      <article class="admin-image-card">
+        <div class="admin-card-image"><% if(c.image){ %><img src="<%= c.image %>" alt="<%= c.name %>"><% }else{ %><div class="image-placeholder">GC</div><% } %></div>
+        <div class="admin-card-body"><span class="eyebrow">CATEGORY</span><h3><%= c.name %></h3><p><%= c.description||'' %></p>
+          <a href="/admin/categories/<%= c._id %>/edit" class="btn btn-secondary">
+              Edit
+          </a>
+          <form method="post" action="/admin/categories/<%= c._id %>/delete" onsubmit="return confirm('Delete this category and all its services?')"><button class="danger-btn">Delete category</button></form>
+        </div>
+      </article>
+    <% }) %>
+  </div>
+</section>
+<%- include('../partials/admin-footer') %>

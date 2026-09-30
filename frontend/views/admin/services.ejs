@@ -1,0 +1,28 @@
+<%- include('../partials/admin-header',{title:'Services Management'}) %>
+<section class="admin-section">
+  <div class="admin-page-title"><span class="eyebrow">SERVICE CATALOG</span><h1>Services / Sub-categories</h1><p>Every service belongs to a category and can be removed independently.</p></div>
+  <% if (typeof error !== 'undefined' && error) { %>
+      <div class="alert"><%= error %></div>
+  <% } %>
+  <div class="admin-panel">
+    <form method="post" action="/admin/services" enctype="multipart/form-data" class="admin-form-grid service-admin-form">
+      <select name="category" required><option value="">Select category</option><% categories.forEach(c=>{ %><option value="<%= c._id %>"><%= c.name %></option><% }) %></select>
+      <input name="name" placeholder="Service / sub-category name" required>
+      <input name="price" type="number" placeholder="Price" min="0" required>
+      <input name="description" placeholder="Description">
+      <label class="file-field">Service image<input name="image" type="file" accept="image/jpeg,image/png,image/webp" required></label>
+      <button class="btn">Add service</button>
+    </form>
+  </div>
+  <div class="table-wrap admin-table">
+    <table><tr><th>Image</th><th>Service</th><th>Category</th><th>Price</th><th>Action</th></tr>
+    <% services.forEach(s=>{ %><tr>
+      <td><% if(s.image){ %><img src="<%= s.image %>" class="table-thumb" alt=""><% }else{ %><div class="table-thumb image-placeholder">GC</div><% } %></td>
+      <td><strong><%= s.name %></strong><br><small><%= s.description||'' %></small></td>
+      <td><span class="category-pill"><%= s.category?.name||'Unassigned' %></span></td>
+      <td>₹<%= s.price %></td>
+      <td><form method="post" action="/admin/services/<%= s._id %>/delete" onsubmit="return confirm('Delete this service?')"><button class="danger-btn">Delete</button></form></td>
+    </tr><% }) %></table>
+  </div>
+</section>
+<%- include('../partials/admin-footer') %>

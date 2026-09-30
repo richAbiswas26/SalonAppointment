@@ -1,0 +1,20 @@
+<%- include('../partials/header',{title:'Login'}) %>
+<section class="auth section">
+    <div class="auth-card">
+        <h1>Welcome back</h1>
+        <% if (typeof message !== 'undefined' && message) { %><div class="success-message"><%= message %></div><% } %>
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert"><%= error %></div>
+        <% } %>
+            
+        <form method="post" class="form">
+            <input name="identifier" placeholder="Username, email or phone" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button class="btn">Login</button>
+        </form>
+        <div class="divider">or</div>
+        <a class="google" href="/auth/google">Continue with Google</a>
+        <p class="forgot-link"><a href="/forgot-password">Forgot password?</a></p><p>New here? <a href="/register">Create an account</a></p>
+    </div>
+</section>
+<%- include('../partials/footer') %>

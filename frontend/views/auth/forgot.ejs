@@ -1,0 +1,11 @@
+<%- include('../partials/header',{title:'Forgot Password'}) %>
+<section class="auth section"><div class="auth-card">
+  <span class="eyebrow">ACCOUNT RECOVERY</span><h1>Forgot password?</h1>
+  <p class="muted">Enter the email connected to your customer account and we'll prepare a secure reset link.</p>
+  <% if(error){ %><div class="alert"><%= error %></div><% } %>
+  <% if(message){ %><div class="success-message"><%= message %></div><% } %>
+  <% if(devResetUrl){ %><div class="dev-reset"><strong>Local development reset link</strong><a href="<%= devResetUrl %>"><%= devResetUrl %></a><small>Configure SMTP before production so this link is emailed instead.</small></div><% } %>
+  <form method="post" action="/forgot-password" class="form"><input type="email" name="email" placeholder="Your email address" required><button class="btn">Send reset link</button></form>
+  <p><a href="/login">← Back to login</a></p>
+</div></section>
+<%- include('../partials/footer') %>

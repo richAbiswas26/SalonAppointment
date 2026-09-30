@@ -1,0 +1,19 @@
+<%- include('../partials/admin-header',{title:'Admin Dashboard'}) %>
+<section class="admin-section">
+  <div class="admin-page-title"><span class="eyebrow">SALON MANAGEMENT</span><h1>Dashboard</h1><p>Monitor appointments, visits, rewards and revenue from one place.</p></div>
+  <div class="admin-stat-grid">
+    <div class="admin-stat"><span>Monthly revenue</span><strong>₹<%= revenue.length?revenue[0].total:0 %></strong><small>Latest month</small></div>
+    <div class="admin-stat"><span>Customers</span><strong><%= customerCount %></strong><small>Registered customers</small></div>
+    <div class="admin-stat"><span>Completed visits</span><strong><%= completedCount %></strong><small>All-time completed appointments</small></div>
+    <div class="admin-stat"><span>Rewards unlocked</span><strong><%= rewards %></strong><small>6-visit reward cycles</small></div>
+  </div>
+  <div class="admin-panel">
+    <div class="panel-head"><h2>Monthly Revenue</h2><a href="/admin/bookings">View bookings →</a></div>
+    <div class="table-wrap"><table><tr><th>Month</th><th>Revenue</th></tr><% revenue.forEach(r=>{ %><tr><td><%= r._id %></td><td>₹<%= r.total %></td></tr><% }) %></table></div>
+  </div>
+  <div class="admin-panel">
+    <div class="panel-head"><h2>Recent bookings</h2><a href="/admin/bookings">Manage all →</a></div>
+    <div class="table-wrap"><table><tr><th>Customer</th><th>Date</th><th>Time</th><th>Status</th><th>Total</th></tr><% bookings.forEach(b=>{ %><tr><td><%= b.customer?.name||b.guestName||'Guest' %></td><td><%= b.date.toLocaleDateString() %></td><td><%= b.slot %></td><td><span class="status <%= b.status %>"><%= b.status %></span></td><td>₹<%= b.finalTotal %></td></tr><% }) %></table></div>
+  </div>
+</section>
+<%- include('../partials/admin-footer') %>

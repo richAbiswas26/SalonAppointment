@@ -1,0 +1,10 @@
+<%- include('../partials/admin-header',{title:'Revenue'}) %>
+<section class="admin-section">
+  <div class="admin-page-title"><span class="eyebrow">FINANCE OVERVIEW</span><h1>Monthly Revenue</h1><p>Revenue is recorded when an appointment is completed and its final bill is generated.</p></div>
+  <div class="admin-stat-grid">
+    <div class="admin-stat"><span>Total recorded revenue</span><strong>₹<%= total %></strong><small>All completed bills</small></div>
+    <div class="admin-stat"><span>Months recorded</span><strong><%= revenue.length %></strong><small>Monthly summaries</small></div>
+  </div>
+  <div class="admin-panel"><div class="table-wrap"><table><tr><th>Month</th><th>Completed bills</th><th>Revenue</th></tr><% revenue.forEach(r=>{ %><tr><td><%= r._id %></td><td><%= r.bookings %></td><td><strong>₹<%= r.total %></strong></td></tr><% }) %></table></div></div>
+</section>
+<%- include('../partials/admin-footer') %>

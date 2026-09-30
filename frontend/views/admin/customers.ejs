@@ -1,0 +1,7 @@
+<%- include('../partials/admin-header',{title:'Customers'}) %>
+<section class="admin-section">
+<div class="admin-page-title"><span class="eyebrow">CUSTOMERS</span><h1>Customers & Visit Progress</h1><p>Every completed appointment counts as one visit. The 6th completed appointment unlocks 10%.</p></div>
+<div class="table-wrap admin-table"><table><tr><th>Customer</th><th>Contact</th><th>Visits</th><th>Reward cycles</th><th>Next reward</th></tr>
+<% customers.forEach(c=>{ %><tr><td><strong><%= c.name %></strong><br><small>@<%= c.username||'-' %></small></td><td><%= c.email||'' %><br><%= c.phone||'' %></td><td><div class="visit-progress"><strong><%= c.rewardCount %>/6</strong><div><span style="width:<%= Math.min(c.rewardCount/6*100,100) %>%"></span></div></div><small>Completed appointments: <%= c._completedVisits %></small></td><td><strong><%= c.rewardCycle %></strong></td><td><%= c.rewardCount===5?'10% on next completed visit':(6-c.rewardCount)+' visit(s) remaining' %></td></tr><% }) %>
+</table></div></section>
+<%- include('../partials/admin-footer') %>

@@ -1,0 +1,7 @@
+<%- include('../partials/admin-header',{title:'Reward History'}) %>
+<section class="admin-section">
+<div class="admin-page-title"><span class="eyebrow">LOYALTY</span><h1>Reward History</h1><p>Each completed cycle represents six completed appointments.</p></div>
+<div class="table-wrap admin-table"><table><tr><th>Customer</th><th>Cycle</th><th>Unlocking booking</th><th>Discount</th><th>Date</th></tr>
+<% rewards.forEach(r=>{ %><tr><td><%= r.customer?.name||'-' %></td><td>#<%= r.cycle %></td><td><%= r.booking?.bookingCode||'-' %></td><td><strong><%= r.discountPercent %>%</strong></td><td><%= r.unlockedAt.toLocaleDateString() %></td></tr><% }) %></table></div>
+</section>
+<%- include('../partials/admin-footer') %>

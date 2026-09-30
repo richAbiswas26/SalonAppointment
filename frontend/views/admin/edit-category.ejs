@@ -1,0 +1,63 @@
+<%- include('../partials/admin-header',{title:'Edit Category'}) %>
+
+<section class="admin-section">
+
+  <div class="admin-page-title">
+    <span class="eyebrow">SERVICE CATALOG</span>
+    <h1>Edit Category</h1>
+    <p>Update your category information.</p>
+  </div>
+
+  <% if (typeof error !== 'undefined' && error) { %>
+    <div class="alert"><%= error %></div>
+  <% } %>
+
+  <div class="admin-panel">
+
+    <form method="post" action="/admin/categories/<%= category._id %>/edit" enctype="multipart/form-data" class="admin-form-grid">
+
+      <input
+        name="name"
+        value="<%= category.name %>"
+        placeholder="Category name"
+        required
+      >
+
+      <input
+        name="description"
+        value="<%= category.description || '' %>"
+        placeholder="Description"
+      >
+
+      <label class="file-field">
+        Category image
+        <input
+          name="image"
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+        >
+      </label>
+
+      <% if (category.image) { %>
+        <img
+          src="<%= category.image %>"
+          alt="<%= category.name %>"
+          style="width:150px;height:100px;object-fit:cover;"
+        >
+      <% } %>
+
+      <button class="btn" type="submit">
+        Update Category
+      </button>
+
+      <a href="/admin/categories" class="btn btn-secondary">
+        Cancel
+      </a>
+
+    </form>
+
+  </div>
+
+</section>
+
+<%- include('../partials/admin-footer') %>

@@ -1,0 +1,122 @@
+<%- include('../partials/admin-header',{title:'Appointment Slots'}) %>
+
+<section class="admin-section">
+
+  <div class="admin-page-title">
+    <span class="eyebrow">AVAILABILITY</span>
+    <h1>Appointment Slots</h1>
+    <p>Manage individual slots or close the entire salon for a date.</p>
+
+    <form class="form inline-admin" method="get">
+      <input type="date" name="date" value="<%= date %>">
+      <button class="btn">Load</button>
+    </form>
+  </div>
+
+  <!-- CLOSE ENTIRE DAY -->
+
+  <div class="admin-panel">
+
+    <h3>Salon Status for <%= date %></h3>
+
+    <% const dayClosed = settings.some(x => x.dayClosed === true); %>
+
+    <% if (dayClosed) { %>
+
+      <p class="alert">
+        🔴 Salon is CLOSED for the entire day.
+      </p>
+
+      <form method="post" action="/admin/slots/day-toggle">
+        <input type="hidden" name="date" value="<%= date %>">
+        <input type="hidden" name="reason" value="Salon closed">
+
+        <button class="btn" type="submit">
+          Open Salon for This Day
+        </button>
+      </form>
+
+    <% } else { %>
+
+      <p class="muted">
+        Salon is OPEN for this day.
+      </p>
+
+      <form method="post" action="/admin/slots/day-toggle">
+
+        <input type="hidden" name="date" value="<%= date %>">
+
+        <input
+          type="text"
+          name="reason"
+          placeholder="Reason for closing (optional)"
+        >
+
+        <button class="danger-btn" type="submit">
+          Close Entire Day
+        </button>
+
+      </form>
+
+    <% } %>
+
+  </div>
+
+
+  <!-- INDIVIDUAL SLOTS -->
+
+  <% if (!dayClosed) { %>
+
+    <div class="slot-grid">
+
+      <% slots.forEach(slot => {
+        const s = settings.find(x => x.slot === slot);
+      %>
+
+        <div class="slot <%= s?.closed ? 'closed' : '' %>">
+
+          <strong><%= slot %></strong>
+
+          <form method="post" action="/admin/slots/toggle">
+
+            <input
+              type="hidden"
+              name="date"
+              value="<%= date %>"
+            >
+
+            <input
+              type="hidden"
+              name="slot"
+              value="<%= slot %>"
+            >
+
+            <input
+              name="reason"
+              placeholder="Reason"
+            >
+
+            <button type="submit">
+              <%= s?.closed ? 'Open' : 'Close' %>
+            </button>
+
+          </form>
+
+        </div>
+
+      <% }) %>
+
+    </div>
+
+  <% } %>
+
+
+  <p class="muted">
+    A booked slot is automatically unavailable to customers.
+    Cancelling a booking makes the slot available again unless the admin
+    has separately closed it.
+  </p>
+
+</section>
+
+<%- include('../partials/admin-footer') %>
