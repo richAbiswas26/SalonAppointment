@@ -14,6 +14,13 @@ router.post('/reset-password/:token',c.reset);
 
 router.get('/logout',c.logout);
 router.get('/auth/google',passport.authenticate('google',{scope:['profile','email']}));
-router.get('/auth/google/callback',passport.authenticate('google',{failureRedirect:'/login'}),c.googleCallback);
+router.get(
+  '/auth/google/callback',
+  passport.authenticate('google', {
+    failureRedirect: '/login?error=not-registered'
+  }),
+  c.googleCallback
+);
+
 
 module.exports=router;

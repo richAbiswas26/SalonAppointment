@@ -2,7 +2,23 @@ const bcrypt=require('bcryptjs');
 const crypto=require('crypto');
 const User=require('../models/User');
 
-exports.showLogin=(req,res)=>res.render('auth/login',{error:null,message:req.query.reset==='success'?'Password reset successfully. You can now log in.':null});
+exports.showLogin = (req, res) => {
+  let error = null;
+  let message = null;
+
+  if (req.query.error === 'not-registered') {
+    error = 'Account not found. Please register first before continuing with Google.';
+  }
+
+  if (req.query.reset === 'success') {
+    message = 'Password reset successfully. You can now log in.';
+  }
+
+  res.render('auth/login', {
+    error,
+    message
+  });
+};
 
 exports.showRegister=(req,res)=>res.render('auth/register',{error:null});
 
