@@ -1,4 +1,131 @@
-require('dotenv').config();const express=require('express');const path=require('path');const session=require('express-session');const MongoStore=require('connect-mongo');const passport=require('./config/passport');const methodOverride=require('method-override');
-const app=express();app.set('view engine','ejs');app.set('views',path.join(__dirname,'../frontend/views'));app.use(express.urlencoded({extended:true}));app.use(express.json());app.use(methodOverride('_method'));app.use(express.static(path.join(__dirname,'../frontend/public')));app.use('/uploads',express.static(path.join(__dirname,'../frontend/uploads')));
-app.use(session({secret:process.env.SESSION_SECRET||'dev-secret',resave:false,saveUninitialized:false,store:process.env.MONGODB_URI?MongoStore.create({mongoUrl:process.env.MONGODB_URI}):undefined,cookie:{maxAge:1000*60*60*24*7}}));app.use(passport.initialize());app.use(passport.session());app.use((req,res,next)=>{res.locals.user=req.user||null;res.locals.sessionCartCount=req.session?.cart?.reduce((n,x)=>n+(x.members||0),0)||0;next();});
-app.use('/',require('./routes/public'));app.use('/',require('./routes/auth'));app.use('/',require('./routes/customer'));app.use('/admin',require('./routes/admin'));app.post('/contact',require('./controllers/adminController').messageCreate);app.use((req,res)=>res.status(404).render('error',{message:'Page not found'}));module.exports=app;
+require('dotenv').config();
+
+const express = require('express');
+const path = require('path');
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
+const passport = require('./config/passport');
+const methodOverride = require('method-override');
+
+const connectDB = require('./config/db');
+
+const app = express();
+
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, '../frontend/views'));
+
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+app.use(methodOverride('_method'));
+
+app.use(
+  express.static(
+    path.join(__dirname, '../frontend/public')
+  )
+);
+
+app.use(
+  '/uploads',
+  express.static(
+    path.join(__dirname, '../frontend/uploads')
+  )
+);
+
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || 'dev-secret',
+    resave: false,
+    saveUninitialized: false,
+
+    store: process.env.MONGODB_URI
+      ? MongoStore.create({
+          mongoUrl: process.env.MONGODB_URI
+        })
+      : undefined,
+
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 24 * 7
+    }
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.use((req, res, next) => {
+  res.locals.user = req.user || null;
+
+  res.locals.sessionCartCount =
+    req.session?.cart?.reduce(
+      (n, x) => n + (x.members || 0),
+      0
+    ) || 0;
+
+  next();
+});
+
+
+/* =========================================
+   CONNECT MONGODB BEFORE ROUTES
+========================================= */
+
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    console.error(
+      'Database connection failed:',
+      error
+    );
+
+    next(error);
+  }
+});
+
+
+/* =========================================
+   ROUTES
+========================================= */
+
+app.use('/', require('./routes/public'));
+
+app.use('/', require('./routes/auth'));
+
+app.use('/', require('./routes/customer'));
+
+app.use('/admin', require('./routes/admin'));
+
+app.post(
+  '/contact',
+  require('./controllers/adminController').messageCreate
+);
+
+
+/* =========================================
+   404
+========================================= */
+
+app.use((req, res) => {
+  res
+    .status(404)
+    .render('error', {
+      message: 'Page not found'
+    });
+});
+
+
+/* =========================================
+   ERROR HANDLER
+========================================= */
+
+app.use((err, req, res, next) => {
+  console.error(err);
+
+  res.status(500).send(
+    'Server error. Please try again later.'
+  );
+});
+
+module.exports = app;
