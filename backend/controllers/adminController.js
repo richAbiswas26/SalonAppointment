@@ -215,6 +215,65 @@ exports.bookings = async (req, res) => {
   });
 };
 
+exports.editBooking = async (req, res) => {
+  try {
+    const b = await Booking.findById(req.params.id);
+    if (!b) return res.status(404).send('Booking not found.');
+    if (b.status === 'completed') return res.status(400).send('Completed bookings cannot be edited.');
+    if (!['booked', 'confirmed', 'cancelled'].includes(b.status)) return res.status(400).send('This booking cannot be edited.');
+
+    const { date, slot, guestName, contactPhone, contactEmail } = req.body;
+    if (!date || !slot || !slotList.includes(slot)) return res.status(400).send('Choose a valid date and time.');
+    const day = new Date(`${date}T00:00:00.000Z`);
+    const selectedTime = new Date(`${date}T${slot}:00+05:30`);
+    if (Number.isNaN(day.getTime()) || selectedTime <= new Date()) return res.status(400).send('Past dates and times are not allowed.');
+
+    const conflict = await Booking.findOne({ _id: { $ne: b._id }, date: day, slot, status: { $in: ['booked', 'confirmed'] } });
+    if (conflict) return res.status(409).send('That time slot is already booked.');
+    const closed = await SlotSetting.findOne({ date: day, $or: [{ dayClosed: true }, { slot, closed: true }] });
+    if (closed) return res.status(409).send('That date or time is closed by the salon.');
+
+    b.date = day;
+    b.slot = slot;
+    if (guestName !== undefined) b.guestName = guestName.trim();
+    if (contactPhone !== undefined) b.contactPhone = contactPhone.trim();
+    if (contactEmail !== undefined) b.contactEmail = contactEmail.trim().toLowerCase();
+    if (b.status === 'cancelled') {
+      b.status = 'booked';
+      b.cancelledBy = undefined;
+      b.cancelledAt = undefined;
+    }
+    await b.save();
+    res.redirect('/admin/bookings');
+  } catch (e) {
+    console.error(e);
+    res.status(400).send(e.message);
+  }
+};
+
+exports.restoreBooking = async (req, res) => {
+  try {
+    const b = await Booking.findById(req.params.id);
+    if (!b || b.status !== 'cancelled') return res.status(400).send('Only cancelled bookings can be restored.');
+    if (new Date(`${b.date.toISOString().slice(0,10)}T${b.slot}:00+05:30`) <= new Date()) return res.status(400).send('A past booking cannot be restored. Edit its date and time first.');
+    const conflict = await Booking.findOne({ _id: { $ne: b._id }, date: b.date, slot: b.slot, status: { $in: ['booked', 'confirmed'] } });
+    if (conflict) return res.status(409).send('The original slot has already been booked. Edit the booking to another slot first.');
+    b.status = 'booked'; b.cancelledBy = undefined; b.cancelledAt = undefined;
+    await b.save();
+    res.redirect('/admin/bookings');
+  } catch (e) { res.status(400).send(e.message); }
+};
+
+exports.deleteBooking = async (req, res) => {
+  try {
+    const b = await Booking.findById(req.params.id);
+    if (!b) return res.redirect('/admin/bookings');
+    if (b.status === 'completed') return res.status(400).send('Completed bookings cannot be deleted because they are linked to revenue and reward history.');
+    await Booking.deleteOne({ _id: b._id });
+    res.redirect('/admin/bookings');
+  } catch (e) { res.status(400).send(e.message); }
+};
+
 exports.cancelBooking = async (req, res) => {
   const b = await Booking.findById(req.params.id);
 

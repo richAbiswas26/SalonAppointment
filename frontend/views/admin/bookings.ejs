@@ -12,7 +12,20 @@
       <td><span class="status <%= b.status %>"><%= b.status %></span><% if(b.discountPercent){ %><br><small class="reward">10% discount</small><% } %></td>
       <td><strong>₹<%= b.finalTotal %></strong><% if(b.discountAmount){ %><br><small>Discount: ₹<%= b.discountAmount %></small><% } %></td>
       <td>
-        <% if(['booked','confirmed'].includes(b.status)){ %><form method="post" action="/admin/bookings/<%= b._id %>/cancel"><button class="danger-btn">Cancel</button></form><% } %>
+        <% if(b.status!=='completed'){ %>
+        <details class="bill-details"><summary>Edit booking</summary>
+          <form method="post" action="/admin/bookings/<%= b._id %>/edit" class="form compact">
+            <label>Date<input type="date" name="date" min="<%= new Date().toISOString().slice(0,10) %>" value="<%= b.date.toISOString().slice(0,10) %>" required></label>
+            <label>Time<select name="slot" required><% ['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00'].forEach(t=>{ %><option value="<%= t %>" <%= b.slot===t?'selected':'' %>><%= t %></option><% }) %></select></label>
+            <label>Customer name<input name="guestName" value="<%= b.guestName||b.customer?.name||'' %>"></label>
+            <label>Phone<input name="contactPhone" value="<%= b.contactPhone||'' %>"></label>
+            <label>Email<input type="email" name="contactEmail" value="<%= b.contactEmail||'' %>"></label>
+            <button class="btn">Save changes</button>
+          </form>
+        </details>
+        <% } %>
+        <% if(b.status==='cancelled'){ %><form method="post" action="/admin/bookings/<%= b._id %>/restore" onsubmit="return confirm('Restore this booking?')"><button class="btn">Restore</button></form><% } %>
+        <% if(['booked','confirmed'].includes(b.status)){ %><form method="post" action="/admin/bookings/<%= b._id %>/cancel" onsubmit="return confirm('Cancel this booking?')"><button class="danger-btn">Cancel</button></form><% } %>
         <% if(b.status!=='completed'&&b.status!=='cancelled'){ %>
         <details class="bill-details"><summary>Finalize bill</summary>
           <form method="post" action="/admin/bookings/<%= b._id %>/complete" class="form compact" onsubmit="return prepareFinalItems(this)">
@@ -23,6 +36,7 @@
           </form>
         </details>
         <% } %>
+        <% if(b.status!=='completed'){ %><form method="post" action="/admin/bookings/<%= b._id %>/delete" onsubmit="return confirm('Permanently delete this booking? This cannot be undone.')"><button class="danger-btn">Delete</button></form><% } %>
       </td>
     </tr>
   <% }) %></table></div>

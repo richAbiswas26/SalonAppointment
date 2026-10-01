@@ -8,6 +8,9 @@ router.use(requireAdmin);
 router.get('/',c.dashboard);
 router.get('/bookings',c.bookings);
 router.post('/bookings/:id/cancel',c.cancelBooking);
+router.post('/bookings/:id/edit',c.editBooking);
+router.post('/bookings/:id/restore',c.restoreBooking);
+router.post('/bookings/:id/delete',c.deleteBooking);
 router.post('/bookings/:id/complete',c.completeBooking);
 
 router.get('/categories',c.categories);

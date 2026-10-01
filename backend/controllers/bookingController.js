@@ -109,8 +109,9 @@ exports.create=async(req,res)=>{
       return res.render('customer/booking',{items:cart(req),discount:0,user:req.user,error:'Please provide an email address or phone number.'});
 
     const d=new Date(date+'T00:00:00');
-    if(Number.isNaN(d.getTime())||date<todayString())
-      return res.render('customer/booking',{items:cart(req),discount:0,user:req.user,error:'Past dates are not allowed.'});
+    const requestedTime=new Date(`${date}T${slot}:00+05:30`);
+    if(Number.isNaN(d.getTime())||date<todayString()||Number.isNaN(requestedTime.getTime())||requestedTime<=new Date())
+      return res.render('customer/booking',{items:cart(req),discount:0,user:req.user,error:'Past dates and times are not allowed.'});
 
     const existing=await Booking.findOne({
       date:d,
