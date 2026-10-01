@@ -32,6 +32,26 @@ app.use(
   )
 );
 
+/* =========================================
+   CONNECT MONGODB BEFORE ROUTES
+========================================= */
+
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    console.error(
+      'Database connection failed:',
+      error
+    );
+
+    next(error);
+  }
+});
+
+// Then initialize session
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET || 'dev-secret',
@@ -66,23 +86,6 @@ app.use((req, res, next) => {
 });
 
 
-/* =========================================
-   CONNECT MONGODB BEFORE ROUTES
-========================================= */
-
-app.use(async (req, res, next) => {
-  try {
-    await connectDB();
-    next();
-  } catch (error) {
-    console.error(
-      'Database connection failed:',
-      error
-    );
-
-    next(error);
-  }
-});
 
 
 /* =========================================
